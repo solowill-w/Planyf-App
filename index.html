@@ -392,6 +392,11 @@ body,.bnav,input,select,textarea,.chin,.cb{transition:background-color .35s,bord
 #auth .ab:active{transform:scale(.98);background:var(--acs)}
 #auth .ab svg{width:22px;height:22px;flex:none}
 #auth .as{display:block;width:100%;background:none;border:0;color:var(--ac);font:700 17px var(--fb);padding:16px 0 6px}
+#md .modal{touch-action:pan-y}
+#swipeHint{position:fixed;left:0;top:50%;width:46px;height:46px;margin-top:-23px;border-radius:50%;background:var(--ac);color:var(--on);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;z-index:9500;opacity:0;pointer-events:none;transform:translateX(-60px);box-shadow:0 8px 22px rgba(0,0,0,.3)}
+#swipeHint.on{transition:none}
+#swipeHint.back{transition:transform .3s cubic-bezier(.2,.8,.2,1),opacity .25s ease}
+@media(prefers-reduced-motion:reduce){#swipeHint{display:none}}
 </style>
 </head>
 <body>
@@ -772,29 +777,33 @@ new MutationObserver(enh).observe($('#mb'),{childList:true,subtree:true});
  document.addEventListener('click',e=>{if(e.target.closest('[data-login]'))A.classList.remove('out')});
 })();
 
-/* ===== gestos: deslizar para volver / deslizar hacia abajo para cerrar cuadro ===== */
+/* ===== gestos (como en Wive): deslizar desde el borde izquierdo para volver / deslizar hacia abajo desde el título para cerrar cuadro ===== */
 (function(){
  let hist=[],last=tab,back=false;const _r=render;
  render=function(a){if(a&&tab!==last&&!back){if(hist[hist.length-1]===tab)hist.pop();else{hist.push(last);if(hist.length>30)hist.shift()}}last=tab;return _r.apply(this,arguments)};
- const mOpen=()=>$('#md').classList.contains('on'),authOn=()=>!$('#auth').classList.contains('out')||$('#splash');
- const xScroll=el=>{for(;el&&el!==document.body;el=el.parentElement){if(el.scrollWidth>el.clientWidth+4&&/(auto|scroll)/.test(getComputedStyle(el).overflowX))return true}return false};
- let g=null;
- addEventListener('touchstart',e=>{g=null;if(e.touches.length!==1||authOn())return;const t=e.touches[0],el=e.target;
-  if(mOpen()){const m=el.closest('#mb');if(m&&m.scrollTop<=2&&!el.closest('input,textarea,select,.dpp')&&t.clientY-m.getBoundingClientRect().top<90)g={k:'m',x:t.clientX,y:t.clientY,t:Date.now(),m};return}
-  if(el.closest('input,textarea,select,.dpg')||xScroll(el))return;
-  g={k:'b',x:t.clientX,y:t.clientY,t:Date.now(),v:$('.view')}},{passive:true});
- addEventListener('touchmove',e=>{if(!g)return;const t=e.touches[0],dx=t.clientX-g.x,dy=t.clientY-g.y;
-  if(g.lock==null&&(Math.abs(dx)>10||Math.abs(dy)>10))g.lock=(g.k==='m'?dy>0&&dy>Math.abs(dx):dx>0&&dx>Math.abs(dy)*1.5);
-  if(!g.lock||RM)return;
-  if(g.k==='m'){g.m.style.transition='none';g.m.style.transform='translateY('+dy*.9+'px)';$('#md').style.opacity=Math.max(.35,1-dy/420)}
-  else if(g.v){g.v.style.transition='none';g.v.style.transform='translateX('+dx*.4+'px)';g.v.style.opacity=Math.max(.4,1-dx/500)}},{passive:true});
- addEventListener('touchend',e=>{if(!g)return;const c=e.changedTouches[0],dx=c.clientX-g.x,dy=c.clientY-g.y,dt=Math.max(1,Date.now()-g.t),k=g.k,m=g.m,v=g.v,ok=g.lock;g=null;
-  if(k==='m'){if(!ok)return;if(dy>90||(dy>40&&dy/dt>.5)){m.style.transition='transform .2s ease-in';m.style.transform='translateY(70vh)';setTimeout(()=>{$('#md').classList.remove('on');m.style.transition=m.style.transform='';$('#md').style.opacity=''},190)}
-   else{m.style.transition='transform .25s cubic-bezier(.2,.8,.2,1)';m.style.transform='';$('#md').style.opacity='';setTimeout(()=>m.style.transition='',260)}return}
-  if(!ok)return;const go=(dx>80&&dx>Math.abs(dy)*2)||(dx>40&&dx/dt>.5&&dx>Math.abs(dy)*2),t=hist.length?hist[hist.length-1]:(tab!=='home'?'home':null);
-  if(go&&t){hist.pop();back=true;tab=t;render(true);back=false}
-  else if(v){v.style.transition='transform .25s,opacity .25s';v.style.transform='';v.style.opacity='';setTimeout(()=>{v.style.transition=''},260)}},{passive:true});
- addEventListener('touchcancel',()=>{g=null},{passive:true});
+ const md=$('#md'),box=$('#mb'),mOpen=()=>md.classList.contains('on'),authOn=()=>!$('#auth').classList.contains('out')||$('#splash');
+ /* cuadros: deslizar hacia abajo desde el título para cerrar */
+ let sy=0,dy=0,drag=false;
+ box.addEventListener('touchstart',e=>{if(!e.target.closest('.mh')||e.touches.length!==1)return;drag=true;sy=e.touches[0].clientY;dy=0;box.style.transition='none'},{passive:true});
+ box.addEventListener('touchmove',e=>{if(!drag)return;dy=Math.max(0,e.touches[0].clientY-sy);box.style.transform='translateY('+dy+'px)';box.style.opacity=String(Math.max(.4,1-dy/380))},{passive:true});
+ const endDrag=()=>{if(!drag)return;drag=false;
+  if(dy>110){box.style.transition='transform .2s ease-in,opacity .2s ease';box.style.transform='translateY(110vh)';box.style.opacity='0';
+   setTimeout(()=>{md.classList.remove('on');box.style.transition=box.style.transform=box.style.opacity=''},190)}
+  else{box.style.transition='transform .35s cubic-bezier(.34,1.56,.64,1),opacity .2s';box.style.transform='';box.style.opacity='';setTimeout(()=>{box.style.transition=''},360)}};
+ box.addEventListener('touchend',endDrag,{passive:true});box.addEventListener('touchcancel',endDrag,{passive:true});
+ /* deslizar desde el borde izquierdo para volver */
+ const hint=document.createElement('div');hint.id='swipeHint';hint.textContent='\u2039';document.body.appendChild(hint);
+ let ex=0,ey=0,edge=false,edx=0;
+ document.addEventListener('touchstart',e=>{const t=e.touches[0];edge=e.touches.length===1&&t.clientX<24&&!mOpen()&&!authOn();
+  if(edge){ex=t.clientX;ey=t.clientY;edx=0;hint.classList.remove('back');hint.classList.add('on')}},{passive:true});
+ document.addEventListener('touchmove',e=>{if(!edge)return;const t=e.touches[0];edx=t.clientX-ex;const ady=Math.abs(t.clientY-ey);
+  if(ady>edx*.8&&ady>30){edge=false;hint.classList.remove('on');hint.classList.add('back');hint.style.opacity='0';hint.style.transform='translateX(-60px)';return}
+  const k=Math.max(0,Math.min(1,edx/90));hint.style.opacity=String(k);hint.style.transform='translateX('+(Math.min(edx,120)*.55-50)+'px) scale('+(.7+.3*k)+')'},{passive:true});
+ const endEdge=()=>{if(!edge)return;edge=false;
+  hint.classList.remove('on');hint.classList.add('back');hint.style.opacity='0';hint.style.transform='translateX(-60px)';
+  const t=hist.length?hist[hist.length-1]:(tab!=='home'?'home':null);
+  if(edx>90&&t){hist.pop();back=true;tab=t;render(true);back=false}};
+ document.addEventListener('touchend',endEdge,{passive:true});document.addEventListener('touchcancel',endEdge,{passive:true});
 })();
 const MESES=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
 function dp(inp){const l=inp.closest('label.fl');if(!l||inp.dataset.dp)return;inp.dataset.dp=1;const req=inp.required;
