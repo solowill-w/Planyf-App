@@ -392,7 +392,10 @@ body,.bnav,input,select,textarea,.chin,.cb{transition:background-color .35s,bord
 #auth .ab:active{transform:scale(.98);background:var(--acs)}
 #auth .ab svg{width:22px;height:22px;flex:none}
 #auth .as{display:block;width:100%;background:none;border:0;color:var(--ac);font:700 17px var(--fb);padding:16px 0 6px}
-#md .modal{touch-action:pan-y}
+#md .modal{touch-action:pan-y;overscroll-behavior:contain}
+.ov{overscroll-behavior:contain}
+#md .mh{touch-action:none}
+html:has(#md.on),body:has(#md.on){overflow:hidden;overscroll-behavior:none}
 #swipeHint{position:fixed;left:0;top:50%;width:46px;height:46px;margin-top:-23px;border-radius:50%;background:var(--ac);color:var(--on);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;z-index:9500;opacity:0;pointer-events:none;transform:translateX(-60px);box-shadow:0 8px 22px rgba(0,0,0,.3)}
 #swipeHint.on{transition:none}
 #swipeHint.back{transition:transform .3s cubic-bezier(.2,.8,.2,1),opacity .25s ease}
@@ -785,7 +788,10 @@ new MutationObserver(enh).observe($('#mb'),{childList:true,subtree:true});
  /* cuadros: deslizar hacia abajo desde el título para cerrar */
  let sy=0,dy=0,drag=false;
  box.addEventListener('touchstart',e=>{if(!e.target.closest('.mh')||e.touches.length!==1)return;drag=true;sy=e.touches[0].clientY;dy=0;box.style.transition='none'},{passive:true});
- box.addEventListener('touchmove',e=>{if(!drag)return;dy=Math.max(0,e.touches[0].clientY-sy);box.style.transform='translateY('+dy+'px)';box.style.opacity=String(Math.max(.4,1-dy/380))},{passive:true});
+ box.addEventListener('touchmove',e=>{if(!drag)return;if(e.cancelable)e.preventDefault();dy=Math.max(0,e.touches[0].clientY-sy);box.style.transform='translateY('+dy+'px)';box.style.opacity=String(Math.max(.4,1-dy/380))},{passive:false});
+ /* con un cuadro abierto, la página de atrás no se mueve (fondo, o contenido del cuadro sin scroll) */
+ document.addEventListener('touchmove',e=>{if(!mOpen())return;const m=e.target.closest&&e.target.closest('.modal');
+  if(!m||m.scrollHeight<=m.clientHeight+1){if(e.cancelable)e.preventDefault()}},{passive:false});
  const endDrag=()=>{if(!drag)return;drag=false;
   if(dy>110){box.style.transition='transform .2s ease-in,opacity .2s ease';box.style.transform='translateY(110vh)';box.style.opacity='0';
    setTimeout(()=>{md.classList.remove('on');box.style.transition=box.style.transform=box.style.opacity=''},190)}
