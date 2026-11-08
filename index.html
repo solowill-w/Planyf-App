@@ -485,6 +485,9 @@ input:focus,select:focus,textarea:focus{box-shadow:0 0 0 4px color-mix(in srgb,v
 <nav class="bnav" id="bnav"></nav>
 <div class="ov" id="md"><div class="modal" id="mb"></div></div>
 <script>
+var CB={user:null,bal:null,inc:[],ok:false};
+function balNow(){return CB.bal!=null?CB.bal:S.bal0+sum(S.tx)}
+function moneyLocked(a){return CB.bal!=null&&(a==='income'||a==='bal'||a==='tx'||a==='ed:bal,0')}
 const I={dash:'<rect x="3" y="3" width="7.5" height="7.5" rx="1.6"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="1.6"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="1.6"/><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="1.6"/>',
 agenda:'<rect x="3.5" y="5" width="17" height="15.5" rx="2.4"/><path d="M3.5 10h17M8 3v4M16 3v4"/>',money:'<path d="M7 4v14"/><path d="M4 15l3 3 3-3"/><path d="M17 20V6"/><path d="M20 9l-3-3-3 3"/>',
 debt:'<path d="M3.5 7l5.5 5.5 4-4L21 17"/><path d="M14.5 17H21v-6.5"/>',card:'<rect x="2.5" y="5.5" width="19" height="13" rx="2.2"/><path d="M2.5 10h19"/><path d="M6 15h4"/>',
@@ -505,23 +508,13 @@ const ic=n=>String(n).startsWith('cat:')?CIC(n.slice(4)):`<svg class="ic${(windo
 const ORB='<svg viewBox="0 0 24 24" aria-hidden="true"><g class="rays"><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6"/></g><circle class="core" cx="12" cy="12" r="7.6"/><g class="cr"><circle cx="9.6" cy="9.8" r="1.5"/><circle cx="14.7" cy="13.3" r="2"/><circle cx="10.3" cy="15.3" r=".9"/></g></svg>';
 const K='tablero-vida-v1',KT='tablero-tema';
 let S=null;try{S=JSON.parse(localStorage.getItem(K))}catch(e){}
-S=Object.assign({notes:[],chat:[],tasks:[],events:[],habits:[],goals:[],projects:[],tx:[],recur:[],debts:[],bills:[],mails:[],name:'Will',bal0:0,health:{goalSteps:10000,goalWater:2000,steps:{},water:{}},fit:{t:{kcal:0,p:0,c:0,f:0},g:0,w:[],meals:[],wk:[]},sleep:{wd:{bed:'23:00',wake:'05:00'},suWake:'08:30',target:8,wind:{dim:true,breath:false,read:false},log:{},ses:null},routine:[{h:'06:30',t:'Trabajo',done:{}},{h:'17:00',t:'Gimnasio',done:{}}]},S||{});
+S=Object.assign({notes:[],chat:[],tasks:[],events:[],habits:[],goals:[],projects:[],tx:[],debts:[],bills:[],mails:[],name:'Will',bal0:0,health:{goalSteps:10000,goalWater:2000,steps:{},water:{}},fit:{t:{kcal:0,p:0,c:0,f:0},g:0,w:[],meals:[],wk:[]},sleep:{wd:{bed:'23:00',wake:'05:00'},suWake:'08:30',target:8,wind:{dim:true,breath:false,read:false},log:{},ses:null},routine:[{h:'06:30',t:'Trabajo',done:{}},{h:'17:00',t:'Gimnasio',done:{}}]},S||{});
 if(!S.seed){if(!S.habits.length)S.habits=['Meditar','Leer','Clase de inglés'].map(n=>({n,days:{}}));S.seed=1}
 const save=()=>{try{localStorage.setItem(K,JSON.stringify(S))}catch(e){}};
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
 const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const p2=n=>String(n).padStart(2,'0'),iso=d=>d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate()),td=()=>iso(new Date());
 const sum=(a,f)=>a.reduce((s,x)=>s+(f?f(x):x.a),0);
-const uid=()=>Math.random().toString(36).slice(2,9)+Date.now().toString(36);
-const RXR=/tarjeta|visa|mastercard|master card|credito|deuda|prestamo|cuota|financ/;
-function ensureRec(){S.recur=S.recur||[];const now=new Date(),cm0=now.getFullYear()*12+now.getMonth();let ch=0;
- S.bills.forEach(b=>{if(!b.id){b.id=uid();ch=1}});
- S.recur.forEach(r=>{r.skip=r.skip||[];const[y0,m0]=r.from.split('-').map(Number),f0=y0*12+(m0-1);
-  for(let k=Math.max(f0+1,cm0);k<=cm0+12;k++){const y=Math.floor(k/12),m=k%12,ym=y+'-'+p2(m+1);if(r.skip.includes(ym))continue;
-   if(S.bills.some(b=>b.rid===r.id&&(b.rm||b.d.slice(0,7))===ym))continue;
-   const dim=new Date(y,m+1,0).getDate();S.bills.push({n:r.n,a:r.a,d:ym+'-'+p2(Math.min(r.day,dim)),paid:false,cat:r.cat||'',id:uid(),rid:r.id,rm:ym});ch=1}});
- if(ch)save()}
-function payTx(b){if(!b.id)b.id=uid();S.tx=S.tx.filter(t=>t.bid!==b.id);if(b.paid)S.tx.push({t:b.n,a:-Math.abs(+b.a||0),c:'Pago',d:td(),bid:b.id})}
 const nf=n=>Math.round(Math.abs(n)).toLocaleString('es-PY'),gs=n=>(n<0?'−':'')+'₲ '+nf(n);
 const M=(n,c)=>`<span class="${c||''}" data-cu="${Math.abs(n)}" data-p="${n<0?'−₲ ':'₲ '}">${gs(n)}</span>`;
 const fd=d=>d?new Date(d+'T00:00').toLocaleDateString('es',{day:'numeric',month:'short'}):'';
@@ -606,12 +599,12 @@ function reply(text){
  if(/^(nota|anota|anotar|apunta|apuntar|guarda|guardar)\b/.test(q)){x=text.replace(/^\s*\S+\s*(esto|que|:)?\s*:?\s*/,'').trim();if(!x)return ans('¿Qué quieres anotar?');S.notes.unshift({t:x.slice(0,40),b:x,d:t});return ans('Nota guardada: «'+x.slice(0,40)+(x.length>40?'…':'')+'». La verás en Notas.')}
  if(/^(que|cuales|cuantos|cuanto|como|mi\b|mis\b|resumen|muestra|ver\b|dime|agenda)/.test(q)||/\?/.test(text)){
   if(/nota/.test(q))return ans(S.notes.length?'Tus últimas notas:\n'+S.notes.slice(0,5).map(n=>'• '+n.t).join('\n'):'Aún no tienes notas.');
-  if(/saldo|dinero|plata|pagos?\b/.test(q)){const mm=money(),b=mm.pend;return ans('Disponible: '+gs(mm.free)+'\n'+(b.length?'Pagos pendientes ('+gs(mm.due)+'):\n'+b.slice(0,6).map(p=>'• '+p.n+' · '+gs(p.a)+' · '+fd(p.d)).join('\n'):'No tienes pagos pendientes.'))}
+  if(/saldo|dinero|plata|pagos?\b/.test(q)){const b=S.bills.filter(b=>!b.paid).sort((a,b)=>a.d.localeCompare(b.d));return ans('Saldo: '+gs(balNow())+'\n'+(b.length?'Pagos pendientes ('+gs(sum(b))+'):\n'+b.slice(0,6).map(p=>'• '+p.n+' · '+gs(p.a)+' · '+fd(p.d)).join('\n'):'No tienes pagos pendientes.'))}
   if(/habito/.test(q))return ans(S.habits.length?'Tus hábitos:\n'+S.habits.map(h=>'• '+(h.days[t]?'✓ ':'○ ')+h.n+' · racha '+streak(h)).join('\n'):'Aún no tienes hábitos. Dime «sugiere hábitos».');
   if(/como (voy|va|me va|estoy)|progreso|avance|estilo de vida/.test(q))return ans(progRep());
   return ans(dayRep(pDate(q)||t))}
  if(/recuerd|recordatorio|recordame|avisame/.test(q)){const d=pDate(q)||t,tm=/a las (\d{1,2})(?::(\d{2}))?\s*(am|pm)?/.exec(q);x=cutn(text,/(recuerd\w*|recordatorio|recordame|avisame)( de| que| para)?/);x=cutn(x,/a las (\d{1,2})(:\d{2})?\s*(am|pm)?/);x=cutn(x,DRX);x=tidy(x);if(!x)return ans('¿Qué quieres que te recuerde?');if(tm){let h=+tm[1];if(tm[3]==='pm'&&h<12)h+=12;x+=' · '+h+':'+(tm[2]||'00')}S.tasks.push({t:x,d:d,done:false});return ans('Listo, lo agregué a tu agenda para el '+fd(d)+(d===t?' (hoy)':'')+': '+x+'.')}
- if(/\bpag(o|ar|ue)\b/.test(q)){const d=pDate(q)||t;x=cutn(text,DRX);const nm=/(\d[\d.,]*)\s*(mil)?/.exec(x);if(!nm)return ans('¿De cuánto es el pago? Ejemplo: «pagar luz 80000 el viernes».');let a=+nm[1].replace(/[.,]/g,'');if(nm[2])a*=1000;x=tidy(x.replace(nm[0],' ').replace(/(agrega\w*|a[ñn]ade\w*|tengo que|pago|pagar|pague|de)\b/ig,' '));H.bills({n:x||'Pago',a,d,r:'auto'});return ans('Pago agregado: '+(x||'Pago')+' · '+gs(a)+' · vence '+fd(d)+'.')}
+ if(/\bpag(o|ar|ue)\b/.test(q)){const d=pDate(q)||t;x=cutn(text,DRX);const nm=/(\d[\d.,]*)\s*(mil)?/.exec(x);if(!nm)return ans('¿De cuánto es el pago? Ejemplo: «pagar luz 80000 el viernes».');let a=+nm[1].replace(/[.,]/g,'');if(nm[2])a*=1000;x=tidy(x.replace(nm[0],' ').replace(/(agrega\w*|a[ñn]ade\w*|tengo que|pago|pagar|pague|de)\b/ig,' '));S.bills.push({n:x||'Pago',a,d,paid:false});return ans('Pago agregado: '+(x||'Pago')+' · '+gs(a)+' · vence '+fd(d)+'.')}
  if(/rutina|organiza(r|me)? (mi )?dia/.test(q)&&/arma|crea|genera|sugier|organiza|dise|ayuda|rutina/.test(q))return ans('Te propongo esta rutina diaria. Toca para agregar:',[{l:'Agregar toda la rutina',k:'routs',v:RT.map(r=>r.join('|')).join(';')},...RT.map(r=>({l:r[0]+' '+r[1],k:'rout',v:r.join('|')}))]);
  const g=GEN.find(e=>e[0].test(q));
  if(/sugier|genera|recomiend|ideas de|ayudame|mejorar|quiero (dormir|bajar|tener|estar|ser)/.test(q)||(/^quiero|me gustaria/.test(q)&&g)){const L=g?g[1]:GDEF;return ans('Te propongo estos hábitos. Toca para agregarlos:',[{l:'Agregar todos',k:'habits',v:L.join('|')},...L.map(n=>({l:n,k:'habit',v:n}))])}
@@ -632,7 +625,7 @@ agenda(){const n=new Date();n.setDate(1);n.setMonth(n.getMonth()+cm);const y=n.g
  for(let d=1;d<=N;d++){const k=y+'-'+p2(m+1)+'-'+p2(d),ty=[...new Set(dayItems(k).map(x=>aIc(x.t,x.i)))].slice(0,3);h+=`<button class="cd ${k===t?'now':''} ${k===sel?'sel':''}" style="--i:${d}" data-cal="${k}"><b>${d}</b><i>${ty.map(x=>ic(x)).join('')}</i></button>`}
  const it=dayItems(sel);
  return `<div class="card"><div class="ch"><button class="circ" data-cm="-1" aria-label="Mes anterior" style="transform:rotate(180deg)">${ic('chev')}</button><h3 style="text-transform:capitalize">${n.toLocaleDateString('es',{month:'long',year:'numeric'})}</h3><button class="circ" data-cm="1" aria-label="Mes siguiente">${ic('chev')}</button></div><div class="cg">${h}</div></div>`},
-deudas(){const eom=iso(new Date(new Date().getFullYear(),new Date().getMonth()+1,0)),all=S.bills.map((x,i)=>({...x,i})).sort((a,b)=>a.d.localeCompare(b.d)),now=all.filter(x=>x.d<=eom),nx=all.filter(x=>x.d>eom),row=x=>R(ic(aIc(x.n,'card')),x.n,(!x.paid&&x.d<td()?'<b class="neg">Vencido</b> · ':'')+fd(x.d)+(x.rid?' · cada mes':''),'<span class="ra">'+gs(x.a)+'</span>'+X('bills',x.i),`<input type="checkbox" class="ck" data-tg="bills,${x.i},paid" ${x.paid?'checked':''}>`,x.paid?'done':'','bills,'+x.i);return head('Pagos pendientes','')+`<div class="g"><div class="card"><div class="ch"><h3>Pagos pendientes</h3><span class="ra">${gs(sum(now.filter(x=>!x.paid)))}</span></div>${F('bills',BF)}${L(now,row,'Sin pagos pendientes.')}${nx.length?`<details class="ad" style="margin-top:10px"><summary>Próximos meses (${nx.length})</summary>${nx.map(row).join('')}</details>`:''}</div></div>`},
+deudas(){return head('Pagos pendientes','')+`<div class="g"><div class="card"><div class="ch"><h3>Pagos pendientes</h3></div>${F('bills',[['n','Pago'],['a','Monto','number!'],['d','Vence','date!']])}${L(S.bills.map((x,i)=>({...x,i})).sort((a,b)=>a.d.localeCompare(b.d)),x=>R(ic(aIc(x.n,'card')),x.n,(!x.paid&&x.d<td()?'<b class="neg">Vencido</b> · ':'')+fd(x.d),'<span class="ra">'+gs(x.a)+'</span>'+X('bills',x.i),`<input type="checkbox" class="ck" data-tg="bills,${x.i},paid" ${x.paid?'checked':''}>`,x.paid?'done':'','bills,'+x.i),'Sin pagos pendientes.')}</div></div>`},
 habitos(){const days=wkDays(),T0=td();
  return `<div class="card"><div class="ch"><h3>Esta semana</h3></div>${F('habits',[['n','Nuevo hábito']])}${L(S.habits.map((h,i)=>({...h,i})),h=>`<div class="row" style="flex-wrap:wrap"><div class="ri">${ic(h.ico||habIcon(h.n))}</div><div class="rm" data-ed="habits,${h.i}" style="cursor:pointer"><b>${esc(h.n)}</b><span>Racha: ${streak(h)} días</span></div><button class="x" data-ed="habits,${h.i}" aria-label="Editar">${ic('edit')}</button>${X('habits',h.i)}<div style="display:flex;gap:5px;flex-basis:100%;justify-content:space-between;margin-top:2px">${days.map((d,wi)=>`<button class="sq ${h.days[iso(d)]?'on':''}${iso(d)===T0?' tdy':''}${iso(d)>T0?' fut':''}" data-hd="${h.i},${iso(d)}">${'LMXJVSD'[wi]}</button>`).join('')}</div></div>`,'Añade tu primer hábito.')}</div>`},
 rutina(){const t=sd(),lb=new Date(t+'T12:00').toLocaleDateString('es',{weekday:'long',day:'numeric',month:'long'});return `<div class="card"><div class="ch"><h3 style="text-transform:capitalize">${lb}</h3><button class="circ" data-open="routine" aria-label="Añadir">${ic('plus')}</button></div>${L(rtFor(t),r=>R(ic(aIc(r.t,'clock')),r.t,r.h+(r.sc?' · '+r.sc:''),'',`<input type="checkbox" class="ck" data-rd="${r.i}" ${r.done[t]?'checked':''}>`,r.done[t]?'done':'','routine,'+r.i),'Sin actividades este día.')}</div>`},
@@ -677,14 +670,14 @@ const drops=(w,g)=>bar(Math.round(w/(g||2000)*100),'wt');
 const wkDays=()=>{const n=new Date(),d=(n.getDay()+6)%7;return[...Array(7)].map((_,i)=>{const x=new Date(n);x.setDate(n.getDate()-d+i);return x})};
 const phead=t=>`<div class="ph"><h1>${t}</h1><button class="gear" data-nav="perfil" aria-label="Perfil">${ic('gear')}</button></div>`;
 const sg=(p,a,sc)=>`<div class="seg ${sc?'sc':''}">${a.map(([k,l])=>`<button class="${sub[p]===k?'on':''}" data-sub="${p}:${k}">${l}</button>`).join('')}</div>`;
-V.home=function(){const t=td(),sel=sd(),z=S.sleep,h=S.health,f=S.fit,days=wkDays(),bal=S.bal0+sum(S.tx),unread=S.mails.filter(m=>!m.done).length,sk=Math.max(0,...S.habits.map(streak));
+V.home=function(){const t=td(),sel=sd(),z=S.sleep,h=S.health,f=S.fit,days=wkDays(),bal=balNow(),unread=S.mails.filter(m=>!m.done).length,sk=Math.max(0,...S.habits.map(streak));
  const items=k=>[...S.events.filter(e=>e.d===k).map(e=>({t:e.t,s:'Evento '+(e.h||''),i:'agenda',ci:e.cat?'cat:'+e.cat:''})),...S.tasks.filter(x=>!x.done&&x.d===k).map(x=>({t:x.t,s:'Recordatorio',i:'bell',ci:x.cat?'cat:'+x.cat:''})),...S.bills.filter(b=>!b.paid&&b.d===k).map(b=>({t:b.n,s:'Pago '+gs(b.a),i:'card',ci:b.cat?'cat:'+b.cat:''}))];
  const win=[...Array(7)].map((_,i)=>{const x=new Date();x.setDate(x.getDate()-3+i);return x}),strip=win.map(x=>{const k=iso(x),n=items(k).length;return `<button class="dy ${k===sel?'sel':''} ${k===t?'tdy':''}" data-day="${k}" aria-label="${fd(k)}"><b>${x.getDate()}</b><i>${n?'<u></u>':''}</i></button>`}).join('');
  const hr=new Date().getHours(),greet=hr<12?'Buenos días':hr<19?'Buenas tardes':'Buenas noches',selLbl=new Date(sel+'T00:00').toLocaleDateString('es',{weekday:'long',day:'numeric'});
  const si=items(sel),rt=rtFor(sel),gy=S.goals.map((g,i)=>({...g,i})).filter(g=>g.s==='año');
  const stp=h.steps[t]||0,wat=h.water[t]||0,wake=sleepWake(),d=dur(z.wd.bed,wake),last=z.log[t],nw=f.wk.filter(w=>w.d===t).length;
  const hab=S.habits.length?`<div class="hb2 hl"><span style="grid-column:1/3"></span>${days.map((x,i)=>`<span class="${iso(x)===t?'tdl':''}">${'LMXJVSD'[i]}</span>`).join('')}</div>`+S.habits.map((hb,i)=>`<div class="hb2"><span class="hi">${ic(hb.ico||habIcon(hb.n))}</span><b>${esc(hb.n)}</b>${days.map(x=>{const k=iso(x);return `<button class="hk ${hb.days[k]?'on':''}" data-hd="${i},${k}" aria-label="${esc(hb.n)} ${fd(k)}">${hb.days[k]?ic('check'):''}</button>`}).join('')}</div>`).join(''):'<div class="em">Añade tu primer hábito con +.</div>';
- return `<div class="hero hh"><div class="gx"><div class="g1">${greet}, ${esc(S.name)}</div><small>${new Date().toLocaleDateString('es',{weekday:'long',day:'numeric',month:'long'})}</small></div><div class="rt"><div class="flm" title="Racha">${ic('habit')}${sk}</div></div>${S.hidden.includes('dinero')?'':(m=>`<div class="hmny" data-money="1"><div><span>Disponible</span><b>${gs(m.free)}</b></div><div><span>Puedes gastar por día</span><b>~${gs(m.day)}</b></div></div>`)(money())}</div>
+ return `<div class="hero hh"><div class="gx"><div class="g1">${greet}, ${esc(S.name)}</div><small>${new Date().toLocaleDateString('es',{weekday:'long',day:'numeric',month:'long'})}</small></div><div class="rt"><div class="flm" title="Racha">${ic('habit')}${sk}</div></div>${S.hidden.includes('dinero')?'':(m=>`<div class="hmny" data-money="1"><div><span>Saldo en cuenta</span><b>${gs(m.bal)}</b></div><div><span>Puedes gastar por día</span><b>~${gs(m.day)}</b></div></div>`)(money())}</div>
  <div class="wks2">${strip}</div>
  ${si.length?`<div class="card" data-cal="${sel}" style="margin-top:22px;padding:4px 16px;cursor:pointer">${si.map(x=>R(ic(aIc(x.t,x.i)),x.t,x.s,'<span class="mu">'+ic('chev')+'</span>')).join('')}</div>`:''}
  <div class="sec"><div class="ch"><h3 class="hlk" data-nav="rutina">Rutina ${ic('chev')}</h3><button class="circ" data-open="routine" aria-label="Añadir a la rutina">${ic('plus')}</button></div><div class="sub">${selLbl}</div><div class="tl">${L(rt,r=>`<div class="tr ${r.done[sel]?'done':''}"><span class="tt2">${r.h}</span><div class="tn" data-rt="${r.i}"><span class="tni">${ic(aIc(r.t,'clock'))}</span><b>${esc(r.t)}</b></div><input type="checkbox" class="ck tk" data-rd="${r.i}" ${r.done[sel]?'checked':''} aria-label="${esc(r.t)}"></div>`,'Añade tu primera actividad con +.')}</div></div>
@@ -694,7 +687,7 @@ V.home=function(){const t=td(),sel=sd(),z=S.sleep,h=S.health,f=S.fit,days=wkDays
  <div class="ch" style="margin-top:22px"><h3 class="hlk" data-nav="notas">Notas ${ic('chev')}</h3><button class="circ" data-open="notes" aria-label="Añadir nota">${ic('plus')}</button></div>
   ${S.notes.length?`<div class="nl">${S.notes.slice(0,2).map((n,i)=>noteCard(n,i)).join('')}</div>`:'<div class="em">Anota lo que no quieras olvidar con +.</div>'}
   ${fileSec()}<div class="ch" style="margin-top:22px"><h3 class="hlk" data-money="1">Dinero ${ic('chev')}</h3></div>
- ${(m=>`<div class="card" data-money="1" style="cursor:pointer"><div class="mu">Disponible</div><div class="sv" style="font-size:30px;margin:4px 0 14px">${M(m.free)}</div><div class="mrow"><div><span>Pagos pendientes</span><b>${gs(m.due)}</b></div><div><span>Por día</span><b>~${gs(m.day)}</b></div></div><div class="mu" style="margin-top:12px;font-size:12.5px">${m.pend.length?m.pend.length+(m.pend.length===1?' pago pendiente':' pagos pendientes')+' · ':''}${m.dl} ${m.dl===1?'día':'días'} hasta fin de mes · toca para ver detalle</div></div>`)(money())}`};
+ ${(m=>`<div class="card" data-money="1" style="cursor:pointer"><div class="mu">Saldo en cuenta</div><div class="sv" style="font-size:30px;margin:4px 0 14px">${M(m.bal)}</div><div class="mrow"><div><span>Por pagar</span><b>${gs(m.due)}</b></div><div><span>Disponible</span><b>${gs(m.free)}</b></div><div><span>Por día</span><b>~${gs(m.day)}</b></div></div><div class="mu" style="margin-top:12px;font-size:12.5px">${m.dl} ${m.dl===1?'día':'días'} hasta fin de mes · toca para agregar ingreso o editar el saldo</div></div>`)(money())}`};
 V.hoy=function(){const h=S.health,t=td(),stp=h.steps[t]||0,wat=h.water[t]||0;
  const b7=(m,g,c)=>{const ds=[...Array(7)].map((_,i)=>{const x=new Date();x.setDate(x.getDate()-6+i);return{l:'DLMXJVS'[x.getDay()],v:m[iso(x)]||0}}),mx=Math.max(g*1.2,...ds.map(d=>d.v),1);return `<div class="bars" style="height:110px"><div class="tg" style="bottom:${Math.round(g/mx*100)}%"></div>${ds.map(d=>`<div class="sb"><i style="background:${c}" data-hh="${Math.round(d.v/mx*100)}"></i></div>`).join('')}</div><div class="bl">${ds.map(d=>`<span>${d.l}</span>`).join('')}</div>`};
  return `<div class="card" style="margin-bottom:16px"><div class="ch"><h3>Pasos</h3><span class="mu">meta ${nf(h.goalSteps)}</span></div><div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px"><div class="sv" style="font-size:30px;display:flex;align-items:center;gap:8px">${nf(stp)}<button class="x" data-ed="steps,0" aria-label="Editar">${ic('edit')}</button></div>${rg2(stp/(h.goalSteps||1),84,10)}</div>${F('steps',[['n','Pasos de hoy','number!']],'Guardar',0,{n:stp||''})}${b7(h.steps,h.goalSteps,'var(--ac)')}</div>
@@ -709,15 +702,15 @@ const kr=(i,t,sub,r,x,cls)=>`<button class="ks-r ${cls||''}" ${x}><span class="k
 const avatar=big=>`<span class="ks-av ${big?'big':''}">${S.avatar?`<img src="${S.avatar}" alt="">`:ic('user')}</span>`;
 V.perfil=function(){const pr=PRESETS.find(x=>x[0]===(S.preset||'icono'))||PRESETS[0],on=SECS.filter(x=>!(S.hidden||[]).includes(x[0])).length;
  return `<div class="ph"><h1>Perfil</h1></div>
-<div class="ks-g"><button class="ks-r" data-x="prof">${avatar()}<span class="ks-t">${esc(S.name)}<small>Foto y nombre</small></span><span class="ks-c">›</span></button>${kr('cloud','Iniciar sesión','','<span class="ks-v">Sin cuenta</span><span class="ks-c">›</span>','data-login="1"')}${kr('proj','Proyectos',S.projects.length+' en total','','data-nav="proyectos"')}${kr('note','Notas',S.notes.length+(S.notes.length===1?' nota':' notas'),'','data-nav="notas"')}${kr('up','Archivos',(S.files||[]).length+' guardados','','data-nav="archivos"')}</div>
+<div class="ks-g"><button class="ks-r" data-x="prof">${avatar()}<span class="ks-t">${esc(S.name)}<small>Foto y nombre</small></span><span class="ks-c">›</span></button>${kr('cloud',CB.user?'Cuenta':'Iniciar sesión','','<span class="ks-v">'+(CB.user?esc(CB.user.email||'Conectada'):'Sin cuenta')+'</span><span class="ks-c">›</span>','data-login="1"')}${kr('proj','Proyectos',S.projects.length+' en total','','data-nav="proyectos"')}${kr('note','Notas',S.notes.length+(S.notes.length===1?' nota':' notas'),'','data-nav="notas"')}${kr('up','Archivos',(S.files||[]).length+' guardados','','data-nav="archivos"')}</div>
 <div class="ks-g">${kr('grid','Secciones','Apaga las que no uses',`<span class="ks-v">${on} de ${SECS.length}</span><span class="ks-c">›</span>`,'data-x="sec"')}${kr('pal','Colores','Cambia el color de la app',`<span class="ks-v"><i class="dotc" style="display:inline-block;vertical-align:middle;margin-right:6px;width:12px;height:12px;background:${pr[2]}"></i>${pr[1]}</span><span class="ks-c">›</span>`,'data-x="col"')}</div>
 <div class="ks-g">${kr('moon','Modo oscuro','','<span class="sw sw-d"></span>','data-theme-toggle="1"')}</div>
 <div class="ks-g">${kr('up','Importar datos','Restaura una copia','','data-x="imp"')}${kr('dl','Exportar datos','Guarda una copia de todo','','data-x="exp"')}${kr('trash','Reiniciar datos','Borra todo y empieza de cero','','data-x="reset"','ks-red')}</div>
 <p class="mu" style="text-align:center;font-size:12.5px;margin:6px 0 0">Mi tablero de vida · v1.0<br>Todo se guarda en este dispositivo</p>`};
 const sp=t=>`<div class="ph"><h1>${t}</h1><button class="gear" data-nav="home" aria-label="Volver">${ic('close')}</button></div>`,ph1=t=>`<div class="ph"><h1>${t}</h1></div>`;
 const P={home:()=>V.home(),
- dinero:()=>{const mm=money(),bal=mm.bal,debt=sum(S.debts,x=>Math.max(0,x.total-x.paid)),bs=mm.due;
-  return phead('Dinero')+`<div class="hero hc" style="margin-bottom:16px"><div><div class="l">Disponible</div><div class="am" style="display:flex;align-items:center;gap:8px">${M(mm.free)}<button class="x" data-ed="bal,0" aria-label="Editar">${ic('edit')}</button></div><div class="s">Pagos pendientes ${gs(bs)} · Saldo real ${gs(bal)}</div></div></div><div class="card" style="margin-bottom:16px"><div class="ch"><h3>Actualizar saldo real</h3></div>${F('bal',[['b','Saldo real en cuenta (Gs)','number!']],'Guardar',0,{b:Math.round(bal)})}</div>`+V.deudas()},
+ dinero:()=>{const bal=balNow(),debt=sum(S.debts,x=>Math.max(0,x.total-x.paid)),bs=sum(S.bills.filter(b=>!b.paid));
+  return phead('Dinero')+`<div class="hero hc" style="margin-bottom:16px"><div><div class="l">Saldo en cuenta</div><div class="am" style="display:flex;align-items:center;gap:8px">${M(bal)}${moneyLocked('bal')?'':`<button class="x" data-ed="bal,0" aria-label="Editar">${ic('edit')}</button>`}</div><div class="s">Por pagar ${gs(bs)}</div></div></div>${moneyLocked('bal')?`<div class="card" style="margin-bottom:16px"><div class="ch"><h3>Saldo de Wive</h3></div><p class="mu" style="font-size:13px;margin:0 0 12px;line-height:1.5">Este saldo viene de Wive (cuentas de ahorro y efectivo). Para cambiarlo, registra tus movimientos en Wive.</p><a class="b bo" href="https://wive-app.vercel.app/" target="_blank" rel="noopener" style="justify-content:center">Abrir Wive</a></div>`:`<div class="card" style="margin-bottom:16px"><div class="ch"><h3>Actualizar saldo</h3></div>${F('bal',[['b','Saldo actual (Gs)','number!']],'Guardar',0,{b:Math.round(bal)})}</div>`}`+V.deudas()},
  salud:()=>phead('Salud')+sg('salud',[['hoy','Hoy'],['fit','Fitness'],['sue','Sueño']])+({hoy:V.hoy,fit:V.fitness,sue:V.sueno}[sub.salud])(),
  agenda:()=>ph1('Agenda')+V.agenda(),perfil:()=>V.perfil(),
  proyectos:()=>sp('Proyectos')+V.proyectos(),objetivos:()=>sp('Objetivos')+V.objetivos(),habitos:()=>sp('Hábitos')+V.habitos(),rutina:()=>sp('Rutina')+V.rutina()};
@@ -727,17 +720,16 @@ const H={income:o=>{S.tx.push({a:Math.abs(+o.a)||0,t:o.c||'Ingreso',d:td()})},wa
  wt:o=>{S.fit.w=S.fit.w.filter(x=>x.d!==td());S.fit.w.push({d:td(),kg:+o.kg})},
  slog:o=>{S.sleep.log[td()]={bed:o.b,mins:dur(o.b,o.w)}},tasks:o=>S.tasks.push({t:o.t,d:o.d||'',done:false,cat:o.cat||''}),events:o=>S.events.push(o),
  tx:o=>S.tx.push({t:o.t,a:o.k==='Ingreso'?Math.abs(+o.a):-Math.abs(+o.a),c:o.c||'Otros',d:td()}),
- debts:o=>S.debts.push({n:o.n,total:+o.total,cuota:+o.cuota||0,paid:0}),bills:o=>{const a=+o.a,d=o.d,rec=o.r==='si'||(o.r!=='no'&&RXR.test(nrm(o.n||''))),b={n:o.n,a,d,paid:false,cat:o.cat||'',id:uid(),rm:String(d).slice(0,7)};if(rec&&/^\d{4}-\d{2}-\d{2}$/.test(d)){const r={id:uid(),n:o.n,a,day:+d.slice(8,10),from:d.slice(0,7),cat:o.cat||'',skip:[]};S.recur.push(r);b.rid=r.id}S.bills.push(b);ensureRec()},
+ debts:o=>S.debts.push({n:o.n,total:+o.total,cuota:+o.cuota||0,paid:0}),bills:o=>S.bills.push({n:o.n,a:+o.a,d:o.d,paid:false,cat:o.cat||''}),
  habits:o=>S.habits.push({n:o.n,days:{},ico:o.ico||''}),goals:o=>{const g={t:o.t,s:o.s,y:+o.y||new Date().getFullYear(),p:0,k:o.k==='money'?'money':'otro',m:+o.m||0,c:0};gFix(g);S.goals.push(g)},projects:o=>S.projects.push({n:o.n,next:o.next||'',st:'idea'}),
  notes:o=>{if(!(o.t||'').trim()&&!(o.b||'').trim())return;S.notes.unshift({t:(o.t||'').trim(),b:o.b||'',d:td()})},mails:o=>S.mails.push({t:o.t,done:false}),routine:o=>S.routine.push({h:o.h||'00:00',t:o.t,done:{}})};
-const BF=[['n','Pago'],['a','Monto','number!'],['d','Vence','date!'],['r','Repetir','sel:auto=Automático (tarjeta y deudas cada mes)|si=Todos los meses|no=Solo esta vez']];
-const FM={bills:['Pago',BF],debts:['Deuda',[['n','Deuda'],['total','Total','number!'],['cuota','Cuota','number']]],tasks:['Recordatorio',[['t','Recordatorio'],['d','Fecha','date']]],habits:['Hábito',[['n','Nombre del hábito']]],routine:['Rutina',[['h','Hora','time!'],['t','Nombre']]],goals:['Objetivo',[['t','Objetivo'],['s','Plazo',GPL],['y','Año (si es anual)',GYR],['k','Tipo de objetivo',GTP],['m','Meta en dinero (₲)','number']]],events:['Evento',[['t','Evento'],['d','Fecha','date!'],['h','Hora','time']]],steps:['Pasos',[['n','Pasos de hoy','number!']]],projects:['Proyecto',[['n','Proyecto'],['next','Próximo paso']]],notes:['Nota',[['t','Título'],['b','Nota','area']]],mails:['Correo pendiente',[['t','Correo o asunto']]],wk:['Ejercicio',[['n','Ejercicio'],['kg','Peso kg','number'],['r','Reps','number'],['s','Series','number']]],slog:['Registrar anoche',[['b','Me acosté','time!'],['w','Desperté','time!']]]};
+const FM={bills:['Pago',[['n','Pago'],['a','Monto','number!'],['d','Vence','date!']]],debts:['Deuda',[['n','Deuda'],['total','Total','number!'],['cuota','Cuota','number']]],tasks:['Recordatorio',[['t','Recordatorio'],['d','Fecha','date']]],habits:['Hábito',[['n','Nombre del hábito']]],routine:['Rutina',[['h','Hora','time!'],['t','Nombre']]],goals:['Objetivo',[['t','Objetivo'],['s','Plazo',GPL],['y','Año (si es anual)',GYR],['k','Tipo de objetivo',GTP],['m','Meta en dinero (₲)','number']]],events:['Evento',[['t','Evento'],['d','Fecha','date!'],['h','Hora','time']]],steps:['Pasos',[['n','Pasos de hoy','number!']]],projects:['Proyecto',[['n','Proyecto'],['next','Próximo paso']]],notes:['Nota',[['t','Título'],['b','Nota','area']]],mails:['Correo pendiente',[['t','Correo o asunto']]],wk:['Ejercicio',[['n','Ejercicio'],['kg','Peso kg','number'],['r','Reps','number'],['s','Series','number']]],slog:['Registrar anoche',[['b','Me acosté','time!'],['w','Desperté','time!']]]};
 function openM(k){const f=FM[k];if(!f)return;$('#mb').innerHTML=`<div class="mh"><h3>${f[0]}</h3><button class="x" data-close="1" aria-label="Cerrar">${ic('close')}</button></div>${F(k,f[1],'Guardar',true)}`;$('#md').classList.add('on')}
 const fabKind=()=>({home:'tasks',dinero:'bills',salud:{hoy:'steps',fit:'wk',sue:'slog'}[sub.salud],agenda:'events',perfil:'projects',proyectos:'projects',objetivos:'goals',habitos:'habits',rutina:'routine',notas:'notes',archivos:'files'})[tab];
 const EA=k=>k==='meal'?S.fit.meals:k==='wk'?S.fit.wk:S[k];
-const SP={bal:()=>['Saldo real',[['b','Saldo real en cuenta (Gs)','number!']],{b:Math.round(S.bal0+sum(S.tx))}],steps:()=>['Pasos de hoy',[['n','Pasos de hoy','number!']],{n:S.health.steps[td()]||0}],water:()=>['Agua de hoy',[['w','Agua de hoy (ml)','number!']],{w:S.health.water[td()]||0}],wt:()=>{const W=[...S.fit.w].sort((a,b)=>a.d.localeCompare(b.d));return['Peso',[['kg','Peso de hoy (kg)','number!']],{kg:W.length?W[W.length-1].kg:''}]}};
-function openEd(q){const[k,i]=q.split(',');if(SP[k]){const[t,fl,vv]=SP[k]();$('#mb').innerHTML=`<div class="mh"><h3>Editar · ${t}</h3><button class="x" data-close="1" aria-label="Cerrar">${ic('close')}</button></div>${F('ed:'+k+',0',fl,'Guardar',true,vv)}`;$('#md').classList.add('on');return}
- const it=EA(k)[i],f=k==='goals'?['Objetivo',[...FM.goals[1],['c','Ahorrado hasta ahora (₲)','number'],['p','Progreso (%)','number']]]:k==='projects'?['Proyecto',[...FM.projects[1],['st','Estado','sel:idea|activo|hecho']]]:k==='bills'?['Pago',BF.slice(0,3)]:k==='meal'?['Comida',[['t','Comida'],['kcal','kcal','number!'],['p','Prot. g','number'],['c','Carb. g','number'],['f','Grasa g','number']]]:FM[k];if(!it||!f)return;$('#mb').innerHTML=`<div class="mh"><h3>Editar · ${f[0]}</h3><button class="x" data-close="1" aria-label="Cerrar">${ic('close')}</button></div>${F('ed:'+k+','+i,f[1],'Guardar',true,it)}${['goals','events','tasks','bills','notes'].includes(k)?`${k==='bills'&&it.rid?'<p class="mu" style="font-size:12.5px;margin:12px 0 0">Este pago se repite cada mes. «Eliminar» quita solo este mes.</p><button type="button" class="b bo" style="width:100%;justify-content:center;margin-top:8px" data-x="stoprec:'+i+'">Dejar de repetir</button>':''}<button type="button" class="b bo" style="width:100%;justify-content:center;margin-top:10px" data-del="${k},${i}">Eliminar</button>`:''}`;$('#md').classList.add('on')}
+const SP={bal:()=>['Saldo',[['b','Saldo actual (Gs)','number!']],{b:Math.round(balNow())}],steps:()=>['Pasos de hoy',[['n','Pasos de hoy','number!']],{n:S.health.steps[td()]||0}],water:()=>['Agua de hoy',[['w','Agua de hoy (ml)','number!']],{w:S.health.water[td()]||0}],wt:()=>{const W=[...S.fit.w].sort((a,b)=>a.d.localeCompare(b.d));return['Peso',[['kg','Peso de hoy (kg)','number!']],{kg:W.length?W[W.length-1].kg:''}]}};
+function openEd(q){const[k,i]=q.split(',');if(k==='bal'&&moneyLocked('bal')){toast('Registra tus movimientos en Wive');return}if(SP[k]){const[t,fl,vv]=SP[k]();$('#mb').innerHTML=`<div class="mh"><h3>Editar · ${t}</h3><button class="x" data-close="1" aria-label="Cerrar">${ic('close')}</button></div>${F('ed:'+k+',0',fl,'Guardar',true,vv)}`;$('#md').classList.add('on');return}
+ const it=EA(k)[i],f=k==='goals'?['Objetivo',[...FM.goals[1],['c','Ahorrado hasta ahora (₲)','number'],['p','Progreso (%)','number']]]:k==='projects'?['Proyecto',[...FM.projects[1],['st','Estado','sel:idea|activo|hecho']]]:k==='meal'?['Comida',[['t','Comida'],['kcal','kcal','number!'],['p','Prot. g','number'],['c','Carb. g','number'],['f','Grasa g','number']]]:FM[k];if(!it||!f)return;$('#mb').innerHTML=`<div class="mh"><h3>Editar · ${f[0]}</h3><button class="x" data-close="1" aria-label="Cerrar">${ic('close')}</button></div>${F('ed:'+k+','+i,f[1],'Guardar',true,it)}${['goals','events','tasks','bills','notes'].includes(k)?`<button type="button" class="b bo" style="width:100%;justify-content:center;margin-top:10px" data-del="${k},${i}">Eliminar</button>`:''}`;$('#md').classList.add('on')}
 function syncG(){$$('form select[name=s]').forEach(x=>{const y=x.form&&x.form.querySelector('select[name=y]');if(y)y.parentElement.style.display=x.value==='semana'?'none':''});$$('form select[name=k]').forEach(x=>{const mo=x.value==='money';[['m',mo],['c',mo],['p',!mo]].forEach(([n,v])=>{const e=x.form&&x.form.querySelector('[name='+n+']');if(e)e.parentElement.style.display=v?'':'none'})})}
 new MutationObserver(syncG).observe(document.body,{childList:true,subtree:true});
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='ci'){e.preventDefault();chat(e.target.value)}});
@@ -756,11 +748,11 @@ const BTN=(x,l,c)=>`<button class="b ${c||'bo'}" data-x="${x}" style="flex:1;jus
 function pickPhoto(f){if(!f||!/^image\//.test(f.type))return;const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{const Z=256,c=document.createElement('canvas');c.width=c.height=Z;const x=c.getContext('2d'),m=Math.min(im.naturalWidth,im.naturalHeight);x.drawImage(im,(im.naturalWidth-m)/2,(im.naturalHeight-m)/2,m,m,0,0,Z,Z);S.avatar=c.toDataURL('image/jpeg',.88);save();render(false);act('prof')};im.src=r.result};r.readAsDataURL(f)}
 function importTxt(t){try{const o=JSON.parse(t);if(!o||typeof o!=='object'||Array.isArray(o))throw 0;Object.assign(S,o);S.hidden=S.hidden||[];save();$('#md').classList.remove('on');applyPreset(S.preset||'icono');render(false);toast('Datos importados ✓')}catch(e){toast('Archivo no válido')}}
 function act(x){
- if(x.startsWith('stoprec:')){const b=S.bills[+x.slice(8)];if(b&&b.rid){const id=b.rid,rm=b.rm||b.d.slice(0,7);S.recur=S.recur.filter(r=>r.id!==id);S.bills=S.bills.filter(y=>!(y.rid===id&&!y.paid&&(y.rm||y.d.slice(0,7))>rm));S.bills.forEach(y=>{if(y.rid===id)delete y.rid});save();$('#md').classList.remove('on');render(false);toast('Ya no se repite ✓')}return}
  if(x==='cancel'){$('#md').classList.remove('on');return}
  if(x==='money')return openMoney();
+ if((x==='inc'||x==='bal')&&moneyLocked('bal')){toast('Registra tus movimientos en Wive');return}
  if(x==='inc')return mdl('Agregar ingreso',F('income',[['a','Monto (Gs)','number!'],['c','Concepto (opcional)']],'Guardar',true),BTN('money','Volver'));
- if(x==='bal')return mdl('Editar saldo real',F('bal',[['b','Saldo real en cuenta (Gs)','number!']],'Guardar',true,{b:Math.round(money().bal)}),BTN('money','Volver'));
+ if(x==='bal')return mdl('Editar saldo',F('bal',[['b','Saldo actual (Gs)','number!']],'Guardar',true,{b:Math.round(money().bal)}),BTN('money','Volver'));
  if(x==='prof')return mdl('Perfil',`${avatar(1)}<button class="ks-opt" data-x="photo">Elegir de la galería</button>${S.avatar?'<button class="ks-opt" data-x="nophoto">Usar el ícono por defecto</button>':''}<input type="file" id="phf" accept="image/*" hidden><label class="fl" style="margin-top:6px">Tu nombre<input id="nm" maxlength="30" value="${esc(S.name)}" autocomplete="off"></label>`,BTN('cancel','Cerrar')+BTN('savename','Guardar','bp'));
  if(x==='photo')return $('#phf').click();
  if(x==='nophoto'){delete S.avatar;save();render(false);return act('prof')}
@@ -792,13 +784,12 @@ function lockKey(k){if(k==='x'){if(LK.can)$('#lock').classList.remove('on');retu
   if(LK.mode==='set'){if(!LK.first){LK.first=v;return drawLock()}if(v===LK.first){S.lock=hp(v);save();$('#lock').classList.remove('on');render(false);toast('Bloqueo activado ✓')}else{LK.first='';drawLock('Los PIN no coinciden',1)}return}
   if(hp(v)===S.lock){$('#lock').classList.remove('on');if(LK.mode==='off'){delete S.lock;save();render(false);toast('Bloqueo desactivado')}}else drawLock('PIN incorrecto',1)},140)}
 let HID=0;document.addEventListener('visibilitychange',()=>{if(document.hidden)HID=Date.now();else if(S.lock&&HID&&Date.now()-HID>30000)openLock('unlock',false)});
-function money(){const n=new Date(),y=n.getFullYear(),mo=n.getMonth(),eom=iso(new Date(y,mo+1,0)),dl=new Date(y,mo+1,0).getDate()-n.getDate()+1,bal=S.bal0+sum(S.tx),pend=S.bills.filter(b=>!b.paid&&b.d<=eom).sort((a,b)=>a.d.localeCompare(b.d)),due=sum(pend),free=bal-due;return{bal,due,free,dl,pend,day:free>0?Math.floor(free/dl):0}}
-function openMoney(){const m=money(),inc=S.tx.filter(x=>x.a>0).slice(-3).reverse(),pr=m.pend.slice(0,5);
- mdl('Dinero',`<div class="mny"><span class="mu">Disponible</span><b>${gs(m.free)}</b></div><div class="ch" style="margin:18px 0 4px"><h3 style="font-size:14px">Pagos pendientes</h3><span class="ra">${gs(m.due)}</span></div><div class="mpend">${pr.length?pr.map(x=>R(ic(aIc(x.n,'card')),x.n,(x.d<td()?'<b class="neg">Vencido</b> · ':'')+fd(x.d),'<span class="ra">'+gs(x.a)+'</span>',`<input type="checkbox" class="ck" data-tg="bills,${S.bills.indexOf(x)},paid">`,'')).join('')+(m.pend.length>5?`<button class="b bo" data-go="dinero" style="width:100%;justify-content:center;margin-top:8px">Ver todos (${m.pend.length})</button>`:''):'<div class="mu" style="font-size:13px;padding:8px 0">No tienes pagos pendientes este mes.</div>'}</div><p class="mu" style="font-size:13px;margin:10px 0 0;line-height:1.5">${m.free>0?`Puedes gastar unos ${gs(m.day)} por día durante ${m.dl} días.`:'Tus pagos de este mes superan tu saldo.'}</p>${inc.length?`<div class="ch" style="margin:16px 0 4px"><h3 style="font-size:14px">Últimos ingresos</h3></div>${inc.map(x=>`<div class="row" style="padding:9px 0"><div class="rm"><b>${esc(x.t||'Ingreso')}</b><span>${fd(x.d)}</span></div><span class="ra">+ ${gs(x.a)}</span></div>`).join('')}`:''}`,BTN('bal','Editar saldo')+BTN('inc','Agregar ingreso','bp'))}
+function money(){const n=new Date(),y=n.getFullYear(),mo=n.getMonth(),eom=iso(new Date(y,mo+1,0)),dl=new Date(y,mo+1,0).getDate()-n.getDate()+1,bal=balNow(),due=sum(S.bills.filter(b=>!b.paid&&b.d<=eom)),free=bal-due;return{bal,due,free,dl,day:free>0?Math.floor(free/dl):0}}
+function openMoney(){const m=money(),inc=(CB.bal!=null?CB.inc:S.tx.filter(x=>x.a>0).slice(-3).reverse());
+ mdl('Dinero',`<div class="mny"><span class="mu">Saldo en cuenta</span><b>${gs(m.bal)}</b></div><div class="mrow" style="margin:14px 0"><div><span>Por pagar</span><b>${gs(m.due)}</b></div><div><span>Disponible</span><b>${gs(m.free)}</b></div><div><span>Por día</span><b>~${gs(m.day)}</b></div></div><p class="mu" style="font-size:13px;margin:0;line-height:1.5">${m.free>0?`Después de tus pagos de este mes, puedes gastar unos ${gs(m.day)} por día durante ${m.dl} días.`:'Tus pagos de este mes superan tu saldo.'}</p>${inc.length?`<div class="ch" style="margin:16px 0 4px"><h3 style="font-size:14px">Últimos ingresos</h3></div>${inc.map(x=>`<div class="row" style="padding:9px 0"><div class="rm"><b>${esc(x.t||'Ingreso')}</b><span>${fd(x.d)}</span></div><span class="ra">+ ${gs(x.a)}</span></div>`).join('')}`:''}`,(moneyLocked('bal')?'<a class="b bp" href="https://wive-app.vercel.app/" target="_blank" rel="noopener" style="flex:1;justify-content:center">Abrir Wive</a>':BTN('bal','Editar saldo')+BTN('inc','Agregar ingreso','bp')))}
 function charts(){}
 let PP=null;const pop=q=>{if(RM)return;$$(q).forEach(e=>{e.animate([{transform:'scale(.5)'},{transform:'scale(1.2)',offset:.6},{transform:'scale(1)'}],{duration:340,easing:'ease-out'});fx(e)})};
 function cu(){$$('[data-cu]').forEach(e=>{const to=+e.dataset.cu;if(RM||!to)return;const t0=performance.now();(function f(t){const k=Math.min(1,(t-t0)/700);e.textContent=e.dataset.p+nf(to*(1-Math.pow(1-k,3)));if(k<1)requestAnimationFrame(f)})(t0)})}
-ensureRec();document.addEventListener('visibilitychange',()=>{if(!document.hidden){ensureRec();render(false)}});
 function render(anim){$('#app').innerHTML=`<section class="view ${anim?'enter':''}">${P[tab]()}</section>`;
  $$('[data-nav]').forEach(b=>b.classList.toggle('on',b.dataset.nav===tab));$$('.bi[data-nav]').forEach(b=>b.classList.toggle('on',b.dataset.nav===tab));$$('.bi[data-go]').forEach(b=>b.classList.toggle('on',b.dataset.go===tab+':'+sub[tab]));
  if(anim){scrollTo(0,0);cu()}
@@ -834,8 +825,8 @@ document.addEventListener('click',e=>{const b0=e.target.closest('[data-del],[dat
  if(D.nav){tab=D.nav;$('#md').classList.remove('on');render(true);return}
  if(D.go){const[a,b]=D.go.split(':');tab=a;if(b)sub[a]=b;$('#md').classList.remove('on');render(true);return}
  if(D.exp){try{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(S,null,1)],{type:'application/json'}));a.download='tablero-de-vida.json';a.click()}catch(x){}return}
- if(D.del){const[k,i]=D.del.split(','),q=k.split('.');if(!$('#mb .dsheet'))$('#md').classList.remove('on');if(k==='bills'){const bb=S.bills[+i];if(bb&&bb.rid){const r=S.recur.find(r=>r.id===bb.rid),ym=bb.rm||bb.d.slice(0,7);if(r&&!r.skip.includes(ym))r.skip.push(ym)}}(q[1]?S[q[0]][q[1]]:S[k]).splice(+i,1)}
- else if(D.tg){const[k,i,f]=D.tg.split(',');S[k][i][f]=!S[k][i][f];if(k==='bills'&&f==='paid')payTx(S.bills[i]);if(S[k][i][f])PP=`[data-tg="${D.tg}"]`}
+ if(D.del){const[k,i]=D.del.split(','),q=k.split('.');if(!$('#mb .dsheet'))$('#md').classList.remove('on');(q[1]?S[q[0]][q[1]]:S[k]).splice(+i,1)}
+ else if(D.tg){const[k,i,f]=D.tg.split(',');S[k][i][f]=!S[k][i][f];if(S[k][i][f])PP=`[data-tg="${D.tg}"]`}
  else if(D.ck){const k=td(),h=S.health;h.ck=h.ck||{};const c=h.ck[k]=h.ck[k]||{};c[D.ck]=!c[D.ck];if(c[D.ck]){if(D.ck==='w'&&(h.water[k]||0)<h.goalWater)h.water[k]=h.goalWater;if(D.ck==='s'&&(h.steps[k]||0)<h.goalSteps)h.steps[k]=h.goalSteps}}
  else if(D.hd){const[i,d]=D.hd.split(','),o=S.habits[i].days;o[d]?delete o[d]:o[d]=1;if(o[d])PP=`[data-hd="${D.hd}"]`}
  else if(D.rd){const r=S.routine[D.rd],k=sd();r.done[k]?delete r.done[k]:r.done[k]=1;if(r.done[k])PP=`[data-rd="${D.rd}"]`}
@@ -845,9 +836,9 @@ document.addEventListener('click',e=>{const b0=e.target.closest('[data-del],[dat
  else if(D.slt){slTab=D.slt}
  else if(D.sess==='start'){S.sleep.ses=Date.now()}
  else if(D.sess==='end'){const a=S.sleep.ses,m=Math.max(1,Math.round((Date.now()-a)/60000));S.sleep.log[td()]={bed:new Date(a).toTimeString().slice(0,5),mins:m};S.sleep.ses=null}
- save();render(false);if(D.tg&&b.closest('.mpend'))openMoney();else if(SH())openDay(sd());else if(D.del&&AD&&tab==='agenda'){const k=AD;AD=null;openDay(k)}if(PP){pop(PP);PP=null}});
+ save();render(false);if(SH())openDay(sd());else if(D.del&&AD&&tab==='agenda'){const k=AD;AD=null;openDay(k)}if(PP){pop(PP);PP=null}});
 document.addEventListener('change',e=>{const t=e.target,r=t.dataset.rg;if((t.name==='s'||t.name==='k')&&t.tagName==='SELECT')syncG();if(t.dataset.gy!=null){gyr=+t.value;render(false);return}if(r!=null){S.goals[r].p=+t.value;save();render(false);return}if(t.dataset.name!=null){S.name=t.value.trim()||'Will';save();render(false);return}if(t.dataset.sl&&t.value){const[a,b]=t.dataset.sl.split('.');if(a==='target')S.sleep.target=Math.max(4,+t.value||8);else if(b)S.sleep[a][b]=t.value;else S.sleep[a]=t.value;save();render(false)}});
-function doForm(f){const o=Object.fromEntries(new FormData(f)),a=f.dataset.f;if(a.startsWith('ed:')){const[k,i]=a.slice(3).split(',');if(SP[k]){H[k](o)}else{const it=EA(k)[i];for(const n in o){it[n]=f.querySelector(`[name="${n}"]`).type==='number'?(+o[n]||0):o[n]}if(k==='goals')gFix(it)}}else H[a](o);save();$('#md').classList.remove('on');render(false);toast(a.startsWith('ed:')?'Cambios guardados ✓':'Guardado ✓');if(a==='income'||a==='bal')openMoney();if(AD&&tab==='agenda'){const k=AD;AD=null;openDay(k)}}
+function doForm(f){const o=Object.fromEntries(new FormData(f)),a=f.dataset.f;if(moneyLocked(a)){toast('Registra tus movimientos en Wive');return}if(a.startsWith('ed:')){const[k,i]=a.slice(3).split(',');if(SP[k]){H[k](o)}else{const it=EA(k)[i];for(const n in o){it[n]=f.querySelector(`[name="${n}"]`).type==='number'?(+o[n]||0):o[n]}if(k==='goals')gFix(it)}}else H[a](o);save();$('#md').classList.remove('on');render(false);toast(a.startsWith('ed:')?'Cambios guardados ✓':'Guardado ✓');if(a==='income'||a==='bal')openMoney();if(AD&&tab==='agenda'){const k=AD;AD=null;openDay(k)}}
 document.addEventListener('submit',e=>{e.preventDefault();doForm(e.target)});
 document.addEventListener('keydown',e=>{const f=e.target.form;if(e.key==='Enter'&&e.target.tagName==='INPUT'&&f&&f.dataset.f){e.preventDefault();if(f.reportValidity())doForm(f)}});
 
@@ -1134,8 +1125,8 @@ new MutationObserver(enh).observe($('#mb'),{childList:true,subtree:true});
 (function(){const A=$('#auth'),KA='tablero-auth';const si=$('#splash img');if(si)$('#authIco').src=si.src;let seen=null;try{seen=localStorage.getItem(KA)}catch(e){}
  if(seen)A.classList.add('out');
  A.addEventListener('click',e=>{const b=e.target.closest('[data-au]');if(!b)return;
-  if(b.dataset.au==='skip'){A.classList.add('out');try{localStorage.setItem(KA,'1')}catch(x){}}else toast('Próximamente')});
- document.addEventListener('click',e=>{if(e.target.closest('[data-login]'))A.classList.remove('out')});
+  if(b.dataset.au==='skip'){A.classList.add('out');try{localStorage.setItem(KA,'1')}catch(x){}}else if(b.dataset.au==='google'&&window.cloudLogin){window.cloudLogin()}else toast('Próximamente')});
+ document.addEventListener('click',e=>{if(e.target.closest('[data-login]')){if(CB.user){if(confirm('¿Cerrar sesión? Planyf volverá a usar su saldo local.'))window.cloudLogout&&window.cloudLogout()}else A.classList.remove('out')}});
 })();
 
 /* ===== gestos (como en Wive): deslizar desde el borde izquierdo para volver / deslizar hacia abajo desde el título para cerrar cuadro ===== */
@@ -1199,6 +1190,101 @@ document.addEventListener('click',e=>{if(RM)return;
  const m=e.target.closest&&e.target.closest('[data-cm]');
  if(m){const g=$('.cg');if(g&&g.animate)g.animate([{opacity:0,transform:'translateX('+(+m.dataset.cm>0?20:-20)+'px)'},{opacity:1,transform:'none'}],{duration:280,easing:'cubic-bezier(.2,.8,.2,1)'});return}
  if(e.target.closest&&e.target.closest('[data-day]'))$$('.card[data-cal],.tl').forEach(x=>x.animate&&x.animate([{opacity:0,transform:'translateY(6px)'},{opacity:1,transform:'none'}],{duration:240,easing:'cubic-bezier(.2,.8,.2,1)'}))});
+</script>
+<script>
+/* ===== Cuenta con Google + saldo de Wive (Supabase) — SOLO LECTURA =====
+   Planyf no escribe dinero en la nube: Wive registra los movimientos y Planyf los consulta.
+   Sin sesión (o sin datos de Wive) Planyf sigue usando su saldo local de siempre. */
+(function(){
+  var SB_URL='https://afoluhqnjnsxqzousren.supabase.co';
+  var SB_KEY='sb_publishable_Q4AfZVoXg3_CUpVloW8BgA_DMdV-C-o'; /* clave PÚBLICA; la seguridad la dan las políticas RLS */
+  var SDK='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js';
+  var CK='tablero-cloud-v1', sb=null, pulling=false;
+
+  function cacheLoad(uid){ try{ var c=JSON.parse(localStorage.getItem(CK)); return c&&c.uid===uid?c:null; }catch(e){ return null; } }
+  function cacheSave(uid){ try{ localStorage.setItem(CK,JSON.stringify({uid:uid,bal:CB.bal,inc:CB.inc})); }catch(e){} }
+  function refresh(){
+    try{
+      var ae=document.activeElement, typing=ae&&/^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName);
+      if(!typing) render(false);
+    }catch(e){}
+  }
+
+  var again=false, rtTimer=null, channel=null, channelUid=null;
+  async function pull(){
+    if(!sb||!CB.user) return;
+    if(pulling){ again=true; return; }
+    pulling=true; again=false;
+    try{
+      var b=await sb.from('planyf_balance').select('saldo_pyg').maybeSingle();
+      if(b.error) throw b.error;
+      var i=await sb.from('planyf_recent_incomes').select('description,amount,occurred_on')
+        .order('occurred_on',{ascending:false}).order('created_at',{ascending:false}).limit(3);
+      if(i.error) throw i.error;
+      CB.bal=b.data?Number(b.data.saldo_pyg):null;   /* sin datos en Wive => saldo local */
+      CB.inc=(i.data||[]).map(function(r){ return {t:r.description||'Ingreso',a:Number(r.amount),d:r.occurred_on}; });
+      CB.ok=true; cacheSave(CB.user.id);
+    }catch(e){
+      console.error('planyf pull',e); CB.ok=false;
+      if(CB.bal==null){ var c=cacheLoad(CB.user.id); if(c){ CB.bal=c.bal; CB.inc=c.inc||[]; } }
+    }
+    pulling=false; refresh();
+    if(again){ again=false; pull(); }
+  }
+
+  /* Realtime: cuando Wive registra, edita o borra algo, Supabase avisa y Planyf vuelve a consultar el saldo.
+     Una sola suscripción por usuario; los avisos seguidos se juntan en una sola consulta. */
+  function onChange(){ clearTimeout(rtTimer); rtTimer=setTimeout(pull,400); }
+  function subscribe(){
+    if(!sb||!CB.user||typeof sb.channel!=='function') return;
+    if(channel&&channelUid===CB.user.id) return;            /* ya suscrito: no duplicar */
+    unsubscribe();
+    try{
+      channelUid=CB.user.id;
+      channel=sb.channel('planyf-dinero-'+CB.user.id)
+        .on('postgres_changes',{event:'*',schema:'public',table:'movements'},onChange)
+        .on('postgres_changes',{event:'*',schema:'public',table:'accounts'},onChange)
+        .subscribe();
+    }catch(e){ console.error('realtime',e); channel=null; channelUid=null; }
+  }
+  function unsubscribe(){
+    clearTimeout(rtTimer);
+    try{ if(channel&&sb) sb.removeChannel(channel); }catch(e){}
+    channel=null; channelUid=null;
+  }
+
+  window.cloudLogin=async function(){
+    if(!sb){ toast('El servicio de cuentas aún está cargando. Probá de nuevo en unos segundos.'); return; }
+    try{ localStorage.setItem('tablero-auth','1'); }catch(e){}
+    try{
+      var r=await sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:location.origin+location.pathname,queryParams:{prompt:'select_account'}}});
+      if(r&&r.error) throw r.error;
+    }catch(e){ console.error('login',e); toast('No se pudo iniciar sesión con Google'); }
+  };
+  window.cloudLogout=async function(){ try{ if(sb) await sb.auth.signOut(); }catch(e){} };
+
+  function init(){
+    var sc=document.createElement('script'); sc.src=SDK;
+    sc.onload=function(){
+      try{
+        sb=supabase.createClient(SB_URL,SB_KEY,{auth:{flowType:'pkce',persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+        sb.auth.onAuthStateChange(function(ev,session){
+          var u=session?session.user:null;
+          if(!u){ unsubscribe(); CB.user=null; CB.bal=null; CB.inc=[]; CB.ok=false; try{ localStorage.removeItem(CK); }catch(e){} refresh(); return; }
+          CB.user=u;
+          var c=cacheLoad(u.id); if(c&&CB.bal==null){ CB.bal=c.bal; CB.inc=c.inc||[]; }  /* arranque sin conexión */
+          refresh();
+          setTimeout(function(){ pull(); subscribe(); },0);
+        });
+      }catch(e){ console.error('supabase init',e); }
+    };
+    document.head.appendChild(sc);
+  }
+  document.addEventListener('visibilitychange',function(){ if(document.visibilityState==='visible') pull(); });
+  window.addEventListener('focus',function(){ pull(); });
+  window.addEventListener('online',function(){ pull(); });
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init); else init();
+})();
 </script>
 <script>if('serviceWorker' in navigator&&location.protocol.indexOf('http')===0){window.addEventListener('load',function(){navigator.serviceWorker.register('./sw.js').catch(function(){});});}</script>
 </body>
