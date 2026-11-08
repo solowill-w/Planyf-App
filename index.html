@@ -1240,7 +1240,14 @@ document.addEventListener('click',e=>{if(RM)return;
       if(inFrame&&r&&r.data&&r.data.url){ window.open(r.data.url,'_blank'); if(window.gConnHide) window.gConnHide(); toast('Continúa en la pestaña nueva'); }
     }catch(e){ console.error('login',e); if(window.gConnHide) window.gConnHide(); toast('No se pudo iniciar sesión: '+((e&&e.message)||e)); }
   };
-  window.cloudLogout=async function(){ try{ if(sb) await sb.auth.signOut(); }catch(e){} };
+  window.cloudLogout=async function(){
+    try{ if(sb) await sb.auth.signOut({scope:'local'}); }catch(e){}
+    /* limpia cualquier rastro de la sesión para que no quede la cuenta anterior */
+    try{ Object.keys(localStorage).forEach(function(k){ if(k.indexOf('sb-')===0||k===CK||k==='tablero-auth') localStorage.removeItem(k); }); }catch(e){}
+    CB.user=null; CB.bal=null; CB.inc=[]; CB.ok=false;
+    refresh();
+    var a=document.getElementById('auth'); if(a) a.classList.remove('out'); /* vuelve a la pantalla de login */
+  };
 
   var SDKS=[SDK,'https://fastly.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js','https://unpkg.com/@supabase/supabase-js@2.45.4/dist/umd/supabase.js'], ready=null;
   function loadSDK(i){
