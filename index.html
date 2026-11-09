@@ -409,6 +409,15 @@ body,.bnav,input,select,textarea,.chin,.cb{transition:background-color .35s,bord
 #pdfv .pvp{width:100%}
 #pdfv .pvc{width:100%;display:block;margin:0 0 8px;background:#fff}
 #pdfv iframe{width:100%;height:100%;border:0;background:#fff;display:block}
+.ks-i .gic{width:20px;height:20px;display:block}
+.cfo{position:fixed;inset:0;z-index:900;display:flex;align-items:center;justify-content:center;padding:24px;background:rgba(0,0,0,.45);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);opacity:0;transition:opacity .2s}
+.cfo.on{opacity:1}
+.cfd{width:100%;max-width:340px;background:var(--cb);color:var(--tx);border:1px solid var(--bd);border-radius:28px;padding:24px 22px 20px;box-shadow:0 20px 60px rgba(0,0,0,.35);transform:translateY(14px) scale(.94);transition:transform .32s cubic-bezier(.2,.9,.3,1.15)}
+.cfo.on .cfd{transform:none}
+.cfd h3{margin:0 0 8px;font-size:19px;font-weight:800;letter-spacing:-.01em}
+.cfd p{margin:0;color:var(--mu);font-size:14.5px;line-height:1.5}
+.cfb{display:flex;gap:10px;margin-top:20px}.cfb .b{flex:1;justify-content:center;height:46px}
+.b.bdg{background:var(--dg);color:#fff}
 /* ===== pantalla de inicio (guardar progreso) ===== */
 #auth{position:fixed;inset:0;z-index:990;display:flex;flex-direction:column;background:var(--bg);color:var(--tx);padding:env(safe-area-inset-top,0px) 22px calc(26px + env(safe-area-inset-bottom,0px));opacity:1;visibility:visible;transition:opacity .35s,visibility .35s}
 #auth.out{opacity:0;visibility:hidden;pointer-events:none}
@@ -726,11 +735,12 @@ V.asistente=function(){const ms=S.chat.length?S.chat:[{r:'b',t:'¡Hola '+S.name+
  return `<div class="qps">${QP.map(x=>`<button class="qp" data-q="${esc(x)}">${esc(x)}</button>`).join('')}</div><div class="chat">${ms.map((m,i)=>`<div class="cb ${m.r}">${esc(m.t)}${(m.a||[]).length&&i===ms.length-1?`<div class="cas">${m.a.map((a,j)=>`<button class="qp" data-act="${i},${j}">${esc(a.l)}</button>`).join('')}</div>`:''}</div>`).join('')}${TY?'<div class="cb b typ"><i></i><i></i><i></i></div>':''}</div><div class="chin"><input id="ci" placeholder="Escríbeme: recuérdame llamar a mamá mañana" autocomplete="off"><button class="circ" data-send="1" aria-label="Enviar">${ic('send')}</button></div>`+(S.chat.length?`<button class="b bo" data-cc="1" style="margin-top:14px">Borrar conversación</button>`:'')};
 const SECS=[['dinero','Dinero','Saldo y pagos pendientes'],['rutina','Rutina','Actividades del día'],['habitos','Hábitos','Seguimiento diario'],['objetivos','Objetivos','Del año y de la semana'],['notas','Notas','Apuntes rápidos'],['archivos','Archivos','PDF, imágenes y documentos']];
 const PRESETS=[['icono','Noche','#eff0fc'],['menta','Menta','#4f9d7d'],['oceano','Océano','#4a8fd6'],['violeta','Violeta','#9a6fd6'],['atardecer','Atardecer','#e08a4f'],['rosa','Rosa','#d6628f'],['grafito','Grafito','#8a9a94']];
-const kr=(i,t,sub,r,x,cls)=>`<button class="ks-r ${cls||''}" ${x}><span class="ks-i">${ic(i)}</span><span class="ks-t">${t}${sub?`<small>${sub}</small>`:''}</span>${r||'<span class="ks-c">›</span>'}</button>`;
+const GIC='<svg class="gic" viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M23 12.27c0-.79-.07-1.54-.2-2.27H12v4.51h6.18a5.28 5.28 0 01-2.29 3.47v2.88h3.7c2.17-2 3.41-4.94 3.41-8.59z"/><path fill="#34A853" d="M12 24c3.1 0 5.7-1.03 7.6-2.79l-3.7-2.88c-1.03.69-2.34 1.1-3.9 1.1-3 0-5.54-2.03-6.45-4.75H1.75v2.98A11.5 11.5 0 0012 24z"/><path fill="#FBBC05" d="M5.55 14.68a6.9 6.9 0 010-4.36V7.34H1.75a11.5 11.5 0 000 10.32l3.8-2.98z"/><path fill="#EA4335" d="M12 4.77c1.69 0 3.2.58 4.4 1.72l3.3-3.3A11.4 11.4 0 0012 0 11.5 11.5 0 001.75 7.34l3.8 2.98C6.46 6.8 9 4.77 12 4.77z"/></svg>';
+const kr=(i,t,sub,r,x,cls)=>`<button class="ks-r ${cls||''}" ${x}><span class="ks-i">${i.charAt(0)==='<'?i:ic(i)}</span><span class="ks-t">${t}${sub?`<small>${sub}</small>`:''}</span>${r||'<span class="ks-c">›</span>'}</button>`;
 const avatar=big=>`<span class="ks-av ${big?'big':''}">${S.avatar?`<img src="${S.avatar}" alt="">`:ic('user')}</span>`;
 V.perfil=function(){const pr=PRESETS.find(x=>x[0]===(S.preset||'icono'))||PRESETS[0],on=SECS.filter(x=>!(S.hidden||[]).includes(x[0])).length;
  return `<div class="ph"><h1>Perfil</h1></div>
-<div class="ks-g"><button class="ks-r" data-x="prof">${avatar()}<span class="ks-t">${esc(S.name)}<small>Foto y nombre</small></span><span class="ks-c">›</span></button>${kr('cloud',CB.user?'Cuenta':'Iniciar sesión','','<span class="ks-v">'+(CB.user?esc(CB.user.email||'Conectada'):'Sin cuenta')+'</span><span class="ks-c">›</span>','data-login="1"')}${kr('proj','Proyectos',S.projects.length+' en total','','data-nav="proyectos"')}${kr('note','Notas',S.notes.length+(S.notes.length===1?' nota':' notas'),'','data-nav="notas"')}${kr('up','Archivos',(S.files||[]).length+' guardados','','data-nav="archivos"')}</div>
+<div class="ks-g"><button class="ks-r" data-x="prof">${avatar()}<span class="ks-t">${esc(S.name)}<small>Foto y nombre</small></span><span class="ks-c">›</span></button>${kr(CB.user?GIC:'cloud',CB.user?'Cuenta':'Iniciar sesión','','<span class="ks-v">'+(CB.user?esc(CB.user.email||'Conectada'):'Sin cuenta')+'</span><span class="ks-c">›</span>','data-login="1"')}${kr('proj','Proyectos',S.projects.length+' en total','','data-nav="proyectos"')}${kr('note','Notas',S.notes.length+(S.notes.length===1?' nota':' notas'),'','data-nav="notas"')}${kr('up','Archivos',(S.files||[]).length+' guardados','','data-nav="archivos"')}</div>
 <div class="ks-g">${kr('grid','Secciones','Apaga las que no uses',`<span class="ks-v">${on} de ${SECS.length}</span><span class="ks-c">›</span>`,'data-x="sec"')}${kr('pal','Colores','Cambia el color de la app',`<span class="ks-v"><i class="dotc" style="display:inline-block;vertical-align:middle;margin-right:6px;width:12px;height:12px;background:${pr[2]}"></i>${pr[1]}</span><span class="ks-c">›</span>`,'data-x="col"')}</div>
 <div class="ks-g">${kr('moon','Modo oscuro','','<span class="sw sw-d"></span>','data-theme-toggle="1"')}</div>
 <div class="ks-g">${kr('up','Importar datos','Restaura una copia','','data-x="imp"')}${kr('dl','Exportar datos','Guarda una copia de todo','','data-x="exp"')}${kr('trash','Reiniciar datos','Borra todo y empieza de cero','','data-x="reset"','ks-red')}</div>
@@ -1112,6 +1122,13 @@ async function viewInto(el,f,bl){const nm=f.n.toLowerCase();
   else el.innerHTML='<div class="fmsg"><div class="fp big"><b>'+esc(fIcon(f))+'</b></div><p>Este formato no tiene vista previa aquí. Usa Abrir o Descargar.</p></div>';
  }catch(e){el.innerHTML=isPdf(f)?'<iframe class="fv" src="'+FU+'" title="PDF"></iframe>':'<div class="fmsg">No se pudo cargar la vista previa. La primera vez para este formato necesitas internet. Usa Abrir o Descargar.</div>'}}
 
+window.askC=function(o){return new Promise(function(res){const d=document.createElement('div');d.className='cfo';
+ d.innerHTML='<div class="cfd" role="alertdialog" aria-modal="true"><h3>'+esc(o.t)+'</h3>'+(o.m?'<p>'+esc(o.m)+'</p>':'')+'<div class="cfb"><button type="button" class="b bo" data-c="0">'+esc(o.no||'Cancelar')+'</button><button type="button" class="b '+(o.danger?'bdg':'bp')+'" data-c="1">'+esc(o.ok||'Aceptar')+'</button></div></div>';
+ const k=function(e){if(e.key==='Escape')done(false)};
+ const done=function(v){document.removeEventListener('keydown',k);d.classList.remove('on');setTimeout(function(){d.remove()},220);res(v)};
+ document.addEventListener('keydown',k);
+ d.addEventListener('click',function(e){e.stopPropagation();if(e.target===d)return done(false);const b=e.target.closest('[data-c]');if(b)done(b.dataset.c==='1')});
+ document.body.appendChild(d);requestAnimationFrame(function(){d.classList.add('on')})})};
 const PVI={x:'<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>',d:'<svg viewBox="0 0 24 24"><path d="M12 4v11M7 11l5 5 5-5M5 20h14"/></svg>',t:'<svg viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12h10l1-12M9 7V4h6v3"/></svg>'};
 async function openPdf(f,bl,id){
  const old=$('#pdfv');if(old)old.remove();
@@ -1126,7 +1143,7 @@ async function openPdf(f,bl,id){
   if(a==='close')close();
   else if(a==='in')setZ(z*1.3,sc.clientWidth/2,sc.clientHeight/2);
   else if(a==='out')setZ(z/1.3,sc.clientWidth/2,sc.clientHeight/2);
-  else if(a==='del'&&confirm('¿Eliminar este archivo?')){close();S.files=S.files.filter(x=>x.id!==id);delete TH[id];idb('readwrite',s=>s.delete(id)).catch(()=>{});save();render(false);toast('Archivo eliminado')}});
+  else if(a==='del')askC({t:'¿Eliminar este archivo?',m:'Se quitará de tu lista y no se puede deshacer.',ok:'Eliminar',danger:1}).then(ok=>{if(!ok)return;close();S.files=S.files.filter(x=>x.id!==id);delete TH[id];idb('readwrite',s=>s.delete(id)).catch(()=>{});save();render(false);toast('Archivo eliminado')})});
  const setZ=(nz,fx,fy)=>{nz=Math.max(1,Math.min(5,nz));if(Math.abs(nz-z)<.001)return;const r=nz/z,sx=sc.scrollLeft+fx,sy=sc.scrollTop+fy;z=nz;pp.style.width=(z*100)+'%';sc.scrollLeft=sx*r-fx;sc.scrollTop=sy*r-fy;lab.textContent=Math.round(z*100)+'%';sched()};
  const sched=()=>{clearTimeout(tm);tm=setTimeout(rr,160)};
  const vis=it=>{const r=it.el.getBoundingClientRect(),s=sc.getBoundingClientRect();return r.bottom>s.top-700&&r.top<s.bottom+700};
@@ -1194,7 +1211,7 @@ new MutationObserver(enh).observe($('#mb'),{childList:true,subtree:true});
  if(seen)A.classList.add('out');
  A.addEventListener('click',e=>{const b=e.target.closest('[data-au]');if(!b)return;
   if(b.dataset.au==='skip'){A.classList.add('out');try{localStorage.setItem(KA,'1')}catch(x){}}else if(b.dataset.au==='google'&&window.cloudLogin){window.cloudLogin()}else toast('Próximamente')});
- document.addEventListener('click',e=>{if(e.target.closest('[data-login]')){if(CB.user){if(confirm('¿Cerrar sesión? Planyf volverá a usar su saldo local.'))window.cloudLogout&&window.cloudLogout()}else A.classList.remove('out')}});
+ document.addEventListener('click',e=>{if(e.target.closest('[data-login]')){if(CB.user){askC({t:'¿Cerrar sesión?',m:'Planyf volverá a usar su saldo local.',ok:'Cerrar sesión'}).then(function(ok){if(ok&&window.cloudLogout)window.cloudLogout()})}else A.classList.remove('out')}});
 })();
 
 /* ===== gestos (como en Wive): deslizar desde el borde izquierdo para volver / deslizar hacia abajo desde el título para cerrar cuadro ===== */
