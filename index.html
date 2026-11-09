@@ -1151,7 +1151,7 @@ async function openPdf(f,bl,id){
   rr();
  }catch(e){if(!dead)sc.innerHTML='<iframe src="'+FU+'" title="PDF"></iframe>'}
 }
-async function openFile(id){const f=S.files.find(x=>x.id===id);if(!f)return;let bl;try{bl=await idb('readonly',s=>s.get(id))}catch(e){}if(!bl){toast('Archivo no disponible');return}
+async function openFile(id){const f=S.files.find(x=>x.id===id);if(!f)return;let bl;try{bl=await idb('readonly',s=>s.get(id))}catch(e){}if(!bl){mdl(esc(f.n),`<div class="fmsg"><div class="fp big"><b>${esc(fIcon(f))}</b></div><p>Este archivo ya no está guardado en este dispositivo y no se puede abrir. Puedes eliminarlo de la lista y volver a subirlo.</p></div>`,BTN('cancel','Cerrar')+`<button type="button" class="b bo" style="flex:1;justify-content:center;color:var(--dg)" data-x="fdel:${id}">Eliminar</button>`);return}
  if(FU)URL.revokeObjectURL(FU);FU=URL.createObjectURL(bl);if(isPdf(f)){openPdf(f,bl,id);return}const bs='flex:1;justify-content:center',im=isImg(f);
  mdl(esc(f.n),`<div class="fview">${im?`<img src="${FU}" alt="">`:'<div class="fmsg">Cargando vista previa…</div>'}</div><p class="mu" style="font-size:12.5px;margin:10px 0 0">${fsz(f.s)} · ${fd(f.d)}</p>`,`<a class="b bo" style="${bs}" href="${FU}" target="_blank" rel="noopener">Abrir</a><a class="b bo" style="${bs}" href="${FU}" download="${esc(f.n)}">Descargar</a><button class="b bo" style="${bs};color:var(--dg)" data-x="fdel:${id}">Eliminar</button>`);
  $('#mb').classList.add('fvm');const el=$('#mb .fview');el.addEventListener('touchmove',e=>e.stopPropagation(),{passive:true});if(!im)viewInto(el,f,bl)}
