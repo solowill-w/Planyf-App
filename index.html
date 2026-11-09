@@ -381,6 +381,15 @@ body,.bnav,input,select,textarea,.chin,.cb{transition:background-color .35s,bord
 .nn small{font-size:12px;color:var(--mu);opacity:.75;text-transform:capitalize}
 .view.enter .nn{animation:up .45s cubic-bezier(.2,.8,.2,1) backwards}.view.enter .nn:nth-child(2){animation-delay:.07s}.view.enter .nn:nth-child(3){animation-delay:.14s}.view.enter .nn:nth-child(4){animation-delay:.21s}.view.enter .nn:nth-child(n+5){animation-delay:.28s}
 
+/* ===== notas: vista en un solo cuadro + lápiz ===== */
+.nn{cursor:pointer}
+.nn .nnh{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;width:100%}.nn .nnh b{flex:1;min-width:0}
+.nn .nnh .x{margin:-5px -8px 0 0;width:34px;height:34px;color:var(--mu)}.nn .nnh .x:hover{background:var(--acs);color:var(--acd)}
+.modal:has(.nview){max-width:min(640px,96vw)}
+.nview{background:var(--bg);border:1px solid var(--bd);border-radius:20px;padding:6px 18px 14px}
+.nview h4{margin:0;padding:14px 0 12px;font-family:var(--fd);font-size:19px;font-weight:700;letter-spacing:-.01em;overflow-wrap:anywhere;border-bottom:1px solid var(--bd)}
+.nview .nvb{padding:14px 0 6px;font-size:16px;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere;color:var(--tx)}
+.nview small{display:block;margin-top:8px;font-size:12px;color:var(--mu);opacity:.8;text-transform:capitalize}
 /* ===== pantalla de inicio (guardar progreso) ===== */
 #auth{position:fixed;inset:0;z-index:990;display:flex;flex-direction:column;background:var(--bg);color:var(--tx);padding:env(safe-area-inset-top,0px) 22px calc(26px + env(safe-area-inset-bottom,0px));opacity:1;visibility:visible;transition:opacity .35s,visibility .35s}
 #auth.out{opacity:0;visibility:hidden;pointer-events:none}
@@ -1180,8 +1189,13 @@ function dp(inp){const l=inp.closest('label.fl');if(!l||inp.dataset.dp)return;in
 {const _od=openDay;openDay=function(k){const was=SH();_od(k);const s=$('#mb .dsheet');if(was&&s)s.classList.add('re')}}
 
 I.search='<circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/>';
-function noteCard(n,i){const t=n.t||(n.b||'').split('\n')[0].slice(0,40)||'Sin título',b=n.t?n.b:(n.b||'').split('\n').slice(1).join('\n');
- return `<button class="nn" data-ed="notes,${i}" data-nq="${esc(nrm((n.t||'')+' '+(n.b||'')))}"><b>${esc(t)}</b>${b&&b.trim()?`<span class="np">${esc(b)}</span>`:''}<small>${fd(n.d)}</small></button>`}
+function noteParts(n){return [n.t||(n.b||'').split('\n')[0].slice(0,40)||'Sin título',n.t?n.b:(n.b||'').split('\n').slice(1).join('\n')]}
+function noteCard(n,i){const[t,b]=noteParts(n);
+ return `<div class="nn" role="button" tabindex="0" data-nv="${i}" data-nq="${esc(nrm((n.t||'')+' '+(n.b||'')))}"><div class="nnh"><b>${esc(t)}</b><button type="button" class="x" data-ed="notes,${i}" aria-label="Editar nota">${ic('edit')}</button></div>${b&&b.trim()?`<span class="np">${esc(b)}</span>`:''}<small>${fd(n.d)}</small></div>`}
+function openNv(i){const n=S.notes[i];if(!n)return;const[t,b]=noteParts(n);
+ $('#mb').innerHTML=`<div class="mh"><h3>Nota</h3><button class="x" data-close="1" aria-label="Cerrar">${ic('close')}</button></div><div class="nview"><h4>${esc(t)}</h4>${b&&b.trim()?`<div class="nvb">${esc(b)}</div>`:''}<small>${fd(n.d)}</small></div><div style="display:flex;gap:8px;margin-top:14px"><button type="button" class="b bo" data-del="notes,${i}" style="flex:1;justify-content:center">Eliminar</button><button type="button" class="b bp" data-ed="notes,${i}" style="flex:1;justify-content:center">${ic('edit')} Editar</button></div>`;$('#md').classList.add('on')}
+document.addEventListener('click',e=>{const c=e.target.closest('[data-nv]');if(!c||e.target.closest('[data-ed],[data-del]'))return;openNv(+c.dataset.nv)});
+document.addEventListener('keydown',e=>{const c=e.target.closest&&e.target.closest('[data-nv]');if(c&&e.target===c&&(e.key==='Enter'||e.key===' ')){e.preventDefault();openNv(+c.dataset.nv)}});
 V.notas=function(){return (S.notes.length>3?`<div class="nsr">${ic('search')}<input id="nq" placeholder="Buscar en notas" autocomplete="off"></div>`:'')+(S.notes.length?`<div class="nl">${S.notes.map((n,i)=>noteCard(n,i)).join('')}</div>`:'<div class="em">Aún no tienes notas. Toca + para anotar.</div>')};
 P.notas=()=>sp('Notas')+V.notas();
 document.addEventListener('input',e=>{if(e.target.id!=='nq')return;const q=nrm(e.target.value.trim());$$('.nn').forEach(n=>n.style.display=!q||n.dataset.nq.includes(q)?'':'none')});
